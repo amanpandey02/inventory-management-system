@@ -1,68 +1,268 @@
+import { useEffect, useState } from "react";
+
 function App() {
+  const [dashboard, setDashboard] = useState({
+    total_products: 0,
+    total_customers: 0,
+    total_orders: 0,
+    low_stock_products: 0,
+  });
+
+  // Product States
+  const [productName, setProductName] = useState("");
+  const [sku, setSku] = useState("");
+  const [price, setPrice] = useState("");
+  const [quantity, setQuantity] = useState("");
+
+  // Customer States
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+
+  // Order States
+  const [customerId, setCustomerId] = useState("");
+  const [productId, setProductId] = useState("");
+  const [orderQuantity, setOrderQuantity] = useState("");
+
+  const loadDashboard = () => {
+   fetch("https://inventory-management-system-45u0.onrender.com/dashboard")
+      .then((res) => res.json())
+      .then((data) => setDashboard(data))
+      .catch((err) => console.log(err));
+  };
+
+  useEffect(() => {
+    loadDashboard();
+  }, []);
+
+  // Add Product
+  const addProduct = async () => {
+    try {
+      const response = await fetch(
+        "https://inventory-management-system-45u0.onrender.com/products",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: productName,
+            sku: sku,
+            price: parseFloat(price),
+            quantity: parseInt(quantity),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.detail);
+        return;
+      }
+
+      alert("Product Added Successfully");
+
+      setProductName("");
+      setSku("");
+      setPrice("");
+      setQuantity("");
+
+      loadDashboard();
+    } catch (error) {
+      console.log(error);
+      alert("Error adding product");
+    }
+  };
+
+  // Add Customer
+  const addCustomer = async () => {
+    try {
+      const response = await fetch(
+        "https://inventory-management-system-45u0.onrender.com/customers",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            full_name: fullName,
+            email: email,
+            phone: phone,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.detail);
+        return;
+      }
+
+      alert("Customer Added Successfully");
+
+      setFullName("");
+      setEmail("");
+      setPhone("");
+
+      loadDashboard();
+    } catch (error) {
+      console.log(error);
+      alert("Error adding customer");
+    }
+  };
+
+  // Create Order
+  const createOrder = async () => {
+    try {
+      const response = await fetch(
+        "https://inventory-management-system-45u0.onrender.com/orders",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            customer_id: parseInt(customerId),
+            product_id: parseInt(productId),
+            quantity: parseInt(orderQuantity),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.detail);
+        return;
+      }
+
+      alert("Order Created Successfully");
+
+      setCustomerId("");
+      setProductId("");
+      setOrderQuantity("");
+
+      loadDashboard();
+    } catch (error) {
+      console.log(error);
+      alert("Error creating order");
+    }
+  };
+
   return (
     <div className="container">
-
-      <h1 className="title">
-        Inventory Management System
-      </h1>
+      <h1 className="title">Inventory Management System</h1>
 
       <div className="dashboard">
-
         <div className="card">
           <h3>Total Products</h3>
-          <p>0</p>
+          <p>{dashboard.total_products}</p>
         </div>
 
         <div className="card">
           <h3>Total Customers</h3>
-          <p>0</p>
+          <p>{dashboard.total_customers}</p>
         </div>
 
         <div className="card">
           <h3>Total Orders</h3>
-          <p>0</p>
+          <p>{dashboard.total_orders}</p>
         </div>
 
         <div className="card">
           <h3>Low Stock</h3>
-          <p>0</p>
+          <p>{dashboard.low_stock_products}</p>
         </div>
-
       </div>
 
       <div className="section">
         <h2>Product Management</h2>
 
-        <input placeholder="Product Name" />
-        <input placeholder="SKU" />
-        <input placeholder="Price" />
-        <input placeholder="Quantity" />
+        <input
+          placeholder="Product Name"
+          value={productName}
+          onChange={(e) => setProductName(e.target.value)}
+        />
 
-        <button>Add Product</button>
+        <input
+          placeholder="SKU"
+          value={sku}
+          onChange={(e) => setSku(e.target.value)}
+        />
+
+        <input
+          placeholder="Price"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+        />
+
+        <input
+          placeholder="Quantity"
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+        />
+
+        <button onClick={addProduct}>
+          Add Product
+        </button>
       </div>
 
       <div className="section">
         <h2>Customer Management</h2>
 
-        <input placeholder="Full Name" />
-        <input placeholder="Email" />
-        <input placeholder="Phone Number" />
+        <input
+          placeholder="Full Name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+        />
 
-        <button>Add Customer</button>
+        <input
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <input
+          placeholder="Phone Number"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
+
+        <button onClick={addCustomer}>
+          Add Customer
+        </button>
       </div>
 
       <div className="section">
         <h2>Order Management</h2>
 
-        <input placeholder="Customer ID" />
-        <input placeholder="Product ID" />
-        <input placeholder="Quantity" />
+        <input
+          placeholder="Customer ID"
+          value={customerId}
+          onChange={(e) => setCustomerId(e.target.value)}
+        />
 
-        <button>Create Order</button>
+        <input
+          placeholder="Product ID"
+          value={productId}
+          onChange={(e) => setProductId(e.target.value)}
+        />
+
+        <input
+          placeholder="Quantity"
+          value={orderQuantity}
+          onChange={(e) => setOrderQuantity(e.target.value)}
+        />
+
+        <button onClick={createOrder}>
+          Create Order
+        </button>
       </div>
-
     </div>
   );
 }
 
 export default App;
+
