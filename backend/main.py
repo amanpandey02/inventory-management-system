@@ -87,6 +87,23 @@ def get_products(
     products = db.query(ProductModel).all()
     return products
 
+@app.get("/products/{product_id}")
+def get_product(
+    product_id: int,
+    db: Session = Depends(get_db)
+):
+    product = db.query(ProductModel).filter(
+        ProductModel.id == product_id
+    ).first()
+
+    if not product:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found"
+        )
+
+    return product
+
 @app.delete("/products/{product_id}")
 def delete_product(
     product_id: int,
