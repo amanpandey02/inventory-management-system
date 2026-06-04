@@ -4,8 +4,7 @@ from sqlalchemy.orm import Session
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
-from database import engine, SessionLocal
+from database import engine, SessionLocal, get_db
 from models import (
     Base,
     Product as ProductModel,
@@ -54,15 +53,32 @@ def home():
     return {"message": "Inventory Management API Running"}
 
 @app.post("/products")
-def create_product(product: Product):
-    for p in products:
-        if p["sku"] == product.sku:
-            raise HTTPException(status_code=400, detail="SKU already exists")
+def create_product(
+    product: Product,
+    db: Session = Depends(get_db)
+):
+    existing_product = db.query(ProductModel).filter(
+        ProductModel.sku == product.sku
+    ).first()
 
-    data = product.dict()
-    data["id"] = len(products) + 1
-    products.append(data)
-    return data
+    if existing_product:
+        raise HTTPException(
+            status_code=400,
+            detail="SKU already exists"
+        )
+
+    new_product = ProductModel(
+        name=product.name,
+        sku=product.sku,
+        price=product.price,
+        quantity=product.quantity
+    )
+
+    db.add(new_product)
+    db.commit()
+    db.refresh(new_product)
+
+    return new_product
 
 @app.get("/products")
 def get_products(
