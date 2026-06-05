@@ -5,21 +5,29 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database import engine, SessionLocal, get_db
+from jose import jwt
+from passlib.context import CryptContext
+from datetime import datetime, timedelta
+
 from models import (
     Base,
     Product as ProductModel,
     Customer as CustomerModel,
-    Order as OrderModel
+    Order as OrderModel,
+    User as UserModel
 )
+
 app = FastAPI()
+SECRET_KEY = "inventory-secret-key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
 Base.metadata.create_all(bind=engine)
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-        
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,10 +35,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-products = []
-customers = []
-orders = []
 
 class Product(BaseModel):
     name: str
@@ -48,10 +52,105 @@ class Order(BaseModel):
     product_id: int
     quantity: int
 
+class UserRegister(BaseModel):
+    username: str
+    email: str
+    password: str
+
+
+class UserLogin(BaseModel):
+    username: str
+    password: str   
+
+def hash_password(password):
+    return pwd_context.hash(password)
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(
+        plain_password,
+        hashed_password
+    )
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+
+    expire = datetime.utcnow() + timedelta(
+        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+
+    to_encode.update({"exp": expire})
+
+    return jwt.encode(
+        to_encode,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
+    
 @app.get("/")
 def home():
     return {"message": "Inventory Management API Running"}
 
+@app.post("/register")
+def register_user(
+    user: UserRegister,
+    db: Session = Depends(get_db)
+):
+    existing_user = db.query(UserModel).filter(
+        UserModel.username == user.username
+    ).first()
+
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Username already exists"
+        )
+
+    new_user = UserModel(
+        username=user.username,
+        email=user.email,
+        password=hash_password(user.password)
+    )
+
+    db.add(new_user)
+    db.commit()
+
+    return {
+        "message": "User registered successfully"
+    }
+
+@app.post("/login")
+def login_user(
+    user: UserLogin,
+    db: Session = Depends(get_db)
+):
+    db_user = db.query(UserModel).filter(
+        UserModel.username == user.username
+    ).first()
+
+    if not db_user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid credentials"
+        )
+
+    if not verify_password(
+        user.password,
+        db_user.password
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid credentials"
+        )
+
+    token = create_access_token(
+        {"sub": db_user.username}
+    )
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
+    
 @app.post("/products")
 def create_product(
     product: Product,

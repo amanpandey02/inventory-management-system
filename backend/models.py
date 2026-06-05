@@ -29,3 +29,11 @@ class Order(Base):
     product_id = Column(Integer)
     quantity = Column(Integer)
     total_amount = Column(Float)
+    
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True)
+    password = Column(String)

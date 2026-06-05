@@ -29,6 +29,17 @@ function App() {
   const [customers, setCustomers] = useState([]);
 const [orders, setOrders] = useState([]);
 
+const [isLoggedIn, setIsLoggedIn] = useState(
+  localStorage.getItem("token") ? true : false
+);
+const [username, setUsername] = useState("");
+const [password, setPassword] = useState("");
+const [showRegister, setShowRegister] = useState(false);
+
+const [registerUsername, setRegisterUsername] = useState("");
+const [registerEmail, setRegisterEmail] = useState("");
+const [registerPassword, setRegisterPassword] = useState("");
+
   const loadDashboard = () => {
    fetch("https://inventory-management-system-45u0.onrender.com/dashboard")
       .then((res) => res.json())
@@ -86,6 +97,83 @@ const deleteProduct = async (id) => {
 
   loadProducts();
   loadDashboard();
+};
+
+const loginUser = async () => {
+  try {
+    const response = await fetch(
+     "https://inventory-management-system-45u0.onrender.com/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert("Invalid Login");
+      return;
+    }
+
+    localStorage.setItem(
+      "token",
+      data.access_token
+    );
+
+    setIsLoggedIn(true);
+
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const registerUser = async () => {
+  try {
+    const response = await fetch(
+      "https://inventory-management-system-45u0.onrender.com/register",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: registerUsername,
+          email: registerEmail,
+          password: registerPassword,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.detail);
+      return;
+    }
+
+    alert("Registration Successful");
+
+    setRegisterUsername("");
+    setRegisterEmail("");
+    setRegisterPassword("");
+
+    setShowRegister(false);
+  } catch (error) {
+    console.log(error);
+    alert("Registration Failed");
+  }
+};
+
+const logout = () => {
+  localStorage.removeItem("token");
+  setIsLoggedIn(false);
 };
 
 useEffect(() => {
@@ -216,11 +304,101 @@ loadOrders();
     }
   };
 
+if (!isLoggedIn) {
+  return (
+    <div className="container">
+      <div className="section">
+
+        {!showRegister ? (
+          <>
+            <h1>Login</h1>
+
+            <input
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <button onClick={loginUser}>
+              Login
+            </button>
+
+            <p>
+              Don't have an account?
+            </p>
+
+            <button
+              onClick={() => setShowRegister(true)}
+            >
+              Register
+            </button>
+          </>
+        ) : (
+          <>
+            <h1>Register</h1>
+
+            <input
+              placeholder="Username"
+              value={registerUsername}
+              onChange={(e) =>
+                setRegisterUsername(e.target.value)
+              }
+            />
+
+            <input
+              placeholder="Email"
+              value={registerEmail}
+              onChange={(e) =>
+                setRegisterEmail(e.target.value)
+              }
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+              value={registerPassword}
+              onChange={(e) =>
+                setRegisterPassword(e.target.value)
+              }
+            />
+
+            <button onClick={registerUser}>
+              Register
+            </button>
+
+            <p>
+              Already have an account?
+            </p>
+
+            <button
+              onClick={() => setShowRegister(false)}
+            >
+              Login
+            </button>
+          </>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
   return (
     <div className="container">
     <h1 className="title">
   Inventory Management Dashboard
 </h1>
+
+<button onClick={logout}>
+  Logout
+</button>
 
       <div className="dashboard">
         <div className="card">
