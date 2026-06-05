@@ -316,12 +316,17 @@ loadOrders();
 
 if (!isLoggedIn) {
   return (
-    <div className="container">
-      <div className="section">
-
+   <div className="auth-container">
+  <div className="auth-card">
         {!showRegister ? (
           <>
-            <h1>Login</h1>
+            <h1 className="auth-title">
+            Inventory Management
+                  </h1>
+
+          <h2 className="auth-title">
+  Login
+              </h2>
 
             <input
               placeholder="Username"
@@ -336,23 +341,29 @@ if (!isLoggedIn) {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <button onClick={loginUser}>
+           <button
+  className="auth-btn"
+  onClick={loginUser}
+>
               Login
             </button>
 
             <p>
               Don't have an account?
             </p>
-
-            <button
-              onClick={() => setShowRegister(true)}
-            >
+<button
+  className="auth-btn"
+  onClick={() => setShowRegister(true)}
+>
               Register
             </button>
           </>
         ) : (
           <>
-            <h1>Register</h1>
+
+            <h1 className="auth-title">
+               Create Account
+                 </h1>
 
             <input
               placeholder="Username"
@@ -379,7 +390,10 @@ if (!isLoggedIn) {
               }
             />
 
-            <button onClick={registerUser}>
+<button
+className="auth-btn"
+  onClick={registerUser}
+>
               Register
             </button>
 
