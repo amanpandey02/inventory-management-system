@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./App.css";
 
 function App() {
   const [dashboard, setDashboard] = useState({
@@ -360,8 +361,11 @@ loadOrders();
           value={orderQuantity}
           onChange={(e) => setOrderQuantity(e.target.value)}
         />
-
-        <hr />
+         
+<button onClick={createOrder}>
+  Create Order
+</button>
+<hr />
 
 <h3>Orders</h3>
 
