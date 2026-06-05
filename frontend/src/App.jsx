@@ -24,6 +24,8 @@ function App() {
   const [productId, setProductId] = useState("");
   const [orderQuantity, setOrderQuantity] = useState("");
 
+  const [products, setProducts] = useState([]);
+
   const loadDashboard = () => {
    fetch("https://inventory-management-system-45u0.onrender.com/dashboard")
       .then((res) => res.json())
@@ -31,9 +33,29 @@ function App() {
       .catch((err) => console.log(err));
   };
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
+  const loadProducts = () => {
+  fetch("https://inventory-management-system-45u0.onrender.com/products")
+    .then((res) => res.json())
+    .then((data) => setProducts(data));
+};
+const deleteProduct = async (id) => {
+  await fetch(
+    `https://inventory-management-system-45u0.onrender.com/products/${id}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  alert("Product Deleted Successfully");
+
+  loadProducts();
+  loadDashboard();
+};
+
+useEffect(() => {
+  loadDashboard();
+  loadProducts();
+}, []);
 
   // Add Product
   const addProduct = async () => {
@@ -67,8 +89,9 @@ function App() {
       setSku("");
       setPrice("");
       setQuantity("");
+loadDashboard();
+loadProducts();
 
-      loadDashboard();
     } catch (error) {
       console.log(error);
       alert("Error adding product");
@@ -207,6 +230,26 @@ function App() {
         <button onClick={addProduct}>
           Add Product
         </button>
+        <hr />
+
+<h3>Products</h3>
+
+{products.map((p) => (
+  <div key={p.id} className="product-item">
+    {p.name} | ₹{p.price} | Qty:{p.quantity}
+
+    <button
+      onClick={() => {
+  if (window.confirm("Delete this product?")) {
+    deleteProduct(p.id);
+  }
+}}
+      style={{ marginLeft: "10px" }}
+    >
+      Delete
+    </button>
+  </div>
+))}
       </div>
 
       <div className="section">
