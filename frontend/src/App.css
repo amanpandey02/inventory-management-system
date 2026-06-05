@@ -1,14 +1,14 @@
 body {
   margin: 0;
   font-family: "Segoe UI", sans-serif;
-  background: linear-gradient(135deg, #f1f5f9, #dbeafe);
-  min-height: 100vh;
+  background: #0f172a;
 }
 
 .container {
   max-width: 1400px;
   margin: auto;
   padding: 30px;
+  min-height: 100vh;
 }
 
 .header {
@@ -19,10 +19,10 @@ body {
 }
 
 .title {
-  font-size: 40px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 30px;
+  color: #111827 !important;
 }
 
 .dashboard {
@@ -225,4 +225,105 @@ h3 {
 .auth-switch button {
   width: 100%;
   margin-top: 10px;
+}
+
+.dark {
+  background: #0f172a;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+.dark .title,
+.dark h1,
+.dark h2,
+.dark h3,
+.dark p {
+  color: #f8fafc;
+}
+
+.dark .section,
+.dark .card,
+.dark .product-item {
+  background: #1e293b;
+  color: white;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.dark .card h3 {
+  color: #cbd5e1;
+}
+
+.dark .card p {
+  color: #60a5fa;
+}
+
+.dark input {
+  background: #334155;
+  color: white;
+  border: 1px solid #475569;
+}
+
+.dark input::placeholder {
+  color: #cbd5e1;
+}
+
+.dark hr {
+  border-top: 1px solid #475569;
+}
+
+.dark .product-item {
+  border-left: 4px solid #60a5fa;
+}
+.dark .auth-card,
+.dark .section {
+  background: #1e293b;
+  color: white;
+}
+
+.dark .auth-title {
+  color: #f8fafc;
+}
+
+.dark .auth-switch {
+  color: #cbd5e1;
+}
+
+.dark .container {
+  background: #0f172a;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.header-actions button {
+  width: 135px;
+  height: 42px;
+}
+
+.logout-btn {
+  background: #dc2626;
+}
+
+.logout-btn:hover {
+  background: #b91c1c;
+}
+.logout-btn {
+  background: #dc2626;
+}
+
+.logout-btn:hover {
+  background: #b91c1c;
+}
+
+.title {
+  color: whitesmoke !important;
+}
+
+.dark .title {
+  color:  #2563eb !important;
 }

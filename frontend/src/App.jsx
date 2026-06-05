@@ -44,6 +44,9 @@ const [isLoggedIn, setIsLoggedIn] = useState(
 );
 const [username, setUsername] = useState("");
 const [password, setPassword] = useState("");
+const [darkMode, setDarkMode] = useState(
+  localStorage.getItem("theme") === "dark"
+);
 const [showRegister, setShowRegister] = useState(false);
 
 const [registerUsername, setRegisterUsername] = useState("");
@@ -186,6 +189,17 @@ const logout = () => {
   setIsLoggedIn(false);
 };
 
+const toggleTheme = () => {
+  const newTheme = !darkMode;
+
+  setDarkMode(newTheme);
+
+  localStorage.setItem(
+    "theme",
+    newTheme ? "dark" : "light"
+  );
+};
+
 useEffect(() => {
   loadDashboard();
   loadProducts();
@@ -316,7 +330,7 @@ loadOrders();
 
 if (!isLoggedIn) {
   return (
-   <div className="auth-container">
+   <div className={`auth-container ${darkMode ? "dark" : ""}`}>
   <div className="auth-card">
         {!showRegister ? (
           <>
@@ -347,10 +361,7 @@ if (!isLoggedIn) {
 >
               Login
             </button>
-
-            <p>
-              Don't have an account?
-            </p>
+            <p>Don't have an account?</p>
 <button
   className="auth-btn"
   onClick={() => setShowRegister(true)}
@@ -416,14 +427,23 @@ className="auth-btn"
 
   return (
     //Dashboard and Management UI
-    <div className="container">
+    <div className={`container ${darkMode ? "dark" : ""}`}>
   <div className="header">
   <h1 className="title">
     Inventory Management System
   </h1>
+</div>
 
-  <button onClick={logout}>
+  <div className="header-actions">
+  <button
+    className="logout-btn"
+    onClick={logout}
+  >
     Logout
+  </button>
+
+  <button onClick={toggleTheme}>
+    {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
   </button>
 </div>
 
