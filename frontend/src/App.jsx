@@ -25,6 +25,8 @@ function App() {
   const [orderQuantity, setOrderQuantity] = useState("");
 
   const [products, setProducts] = useState([]);
+  const [customers, setCustomers] = useState([]);
+const [orders, setOrders] = useState([]);
 
   const loadDashboard = () => {
    fetch("https://inventory-management-system-45u0.onrender.com/dashboard")
@@ -38,6 +40,39 @@ function App() {
     .then((res) => res.json())
     .then((data) => setProducts(data));
 };
+
+const loadCustomers = () => {
+  fetch("https://inventory-management-system-45u0.onrender.com/customers")
+    .then((res) => res.json())
+    .then((data) => setCustomers(data));
+};
+
+const loadOrders = () => {
+  fetch("https://inventory-management-system-45u0.onrender.com/orders")
+    .then((res) => res.json())
+    .then((data) => setOrders(data));
+};
+
+const deleteCustomer = async (id) => {
+  await fetch(
+    `https://inventory-management-system-45u0.onrender.com/customers/${id}`,
+    { method: "DELETE" }
+  );
+
+  loadCustomers();
+  loadDashboard();
+};
+
+const deleteOrder = async (id) => {
+  await fetch(
+    `https://inventory-management-system-45u0.onrender.com/orders/${id}`,
+    { method: "DELETE" }
+  );
+
+  loadOrders();
+  loadDashboard();
+};
+
 const deleteProduct = async (id) => {
   await fetch(
     `https://inventory-management-system-45u0.onrender.com/products/${id}`,
@@ -55,6 +90,8 @@ const deleteProduct = async (id) => {
 useEffect(() => {
   loadDashboard();
   loadProducts();
+  loadCustomers();
+  loadOrders();
 }, []);
 
   // Add Product
@@ -129,7 +166,8 @@ loadProducts();
       setEmail("");
       setPhone("");
 
-      loadDashboard();
+loadDashboard();
+loadCustomers();
     } catch (error) {
       console.log(error);
       alert("Error adding customer");
@@ -168,6 +206,9 @@ loadProducts();
       setOrderQuantity("");
 
       loadDashboard();
+loadProducts();
+loadOrders();
+
     } catch (error) {
       console.log(error);
       alert("Error creating order");
@@ -176,7 +217,9 @@ loadProducts();
 
   return (
     <div className="container">
-      <h1 className="title">Inventory Management System</h1>
+    <h1 className="title">
+  Inventory Management Dashboard
+</h1>
 
       <div className="dashboard">
         <div className="card">
@@ -236,7 +279,7 @@ loadProducts();
 
 {products.map((p) => (
   <div key={p.id} className="product-item">
-    {p.name} | ₹{p.price} | Qty:{p.quantity}
+   ID: {p.id} | {p.name} | SKU: {p.sku} | ₹{p.price} | Qty:{p.quantity}
 
     <button
       onClick={() => {
@@ -276,6 +319,25 @@ loadProducts();
         <button onClick={addCustomer}>
           Add Customer
         </button>
+        <hr />
+
+<h3>Customers</h3>
+
+{customers.map((c) => (
+  <div key={c.id} className="product-item">
+    ID:{c.id} | {c.full_name} | {c.email}
+
+    <button
+      onClick={() => {
+        if (window.confirm("Delete this customer?")) {
+          deleteCustomer(c.id);
+        }
+      }}
+    >
+      Delete
+    </button>
+  </div>
+))}
       </div>
 
       <div className="section">
@@ -299,9 +361,25 @@ loadProducts();
           onChange={(e) => setOrderQuantity(e.target.value)}
         />
 
-        <button onClick={createOrder}>
-          Create Order
-        </button>
+        <hr />
+
+<h3>Orders</h3>
+
+{orders.map((o) => (
+  <div key={o.id} className="product-item">
+    Order:{o.id} | Customer:{o.customer_id} | Product:{o.product_id} | Qty:{o.quantity}
+
+    <button
+      onClick={() => {
+        if (window.confirm("Delete this order?")) {
+          deleteOrder(o.id);
+        }
+      }}
+    >
+      Delete
+    </button>
+  </div>
+))}
       </div>
     </div>
   );
