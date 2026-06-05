@@ -1,4 +1,12 @@
 import { useEffect, useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import "./App.css";
 
 function App() {
@@ -26,7 +34,9 @@ function App() {
   const [orderQuantity, setOrderQuantity] = useState("");
 
   const [products, setProducts] = useState([]);
+  const [productSearch, setProductSearch] = useState("");
   const [customers, setCustomers] = useState([]);
+  const [customerSearch, setCustomerSearch] = useState("");
 const [orders, setOrders] = useState([]);
 
 const [isLoggedIn, setIsLoggedIn] = useState(
@@ -391,14 +401,17 @@ if (!isLoggedIn) {
 }
 
   return (
+    //Dashboard and Management UI
     <div className="container">
-    <h1 className="title">
-  Inventory Management Dashboard
-</h1>
+  <div className="header">
+  <h1 className="title">
+    Inventory Management System
+  </h1>
 
-<button onClick={logout}>
-  Logout
-</button>
+  <button onClick={logout}>
+    Logout
+  </button>
+</div>
 
       <div className="dashboard">
         <div className="card">
@@ -421,6 +434,38 @@ if (!isLoggedIn) {
           <p>{dashboard.low_stock_products}</p>
         </div>
       </div>
+     
+     <div className="section">
+  <h2>Analytics</h2>
+
+  <ResponsiveContainer width="100%" height={300}>
+    <BarChart
+      data={[
+        {
+          name: "Products",
+          value: dashboard.total_products,
+        },
+        {
+          name: "Customers",
+          value: dashboard.total_customers,
+        },
+        {
+          name: "Orders",
+          value: dashboard.total_orders,
+        },
+        {
+          name: "Low Stock",
+          value: dashboard.low_stock_products,
+        },
+      ]}
+    >
+      <XAxis dataKey="name" />
+      <YAxis />
+      <Tooltip />
+      <Bar dataKey="value" />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
 
       <div className="section">
         <h2>Product Management</h2>
@@ -454,9 +499,16 @@ if (!isLoggedIn) {
         </button>
         <hr />
 
+<input
+  placeholder="Search Product"
+  value={productSearch}
+  onChange={(e) =>
+    setProductSearch(e.target.value)
+  }
+/>
 <h3>Products</h3>
 
-{products.map((p) => (
+{products.filter((p) => p.name.toLowerCase().includes(productSearch.toLowerCase())).map((p) => (
   <div key={p.id} className="product-item">
    ID: {p.id} | {p.name} | SKU: {p.sku} | ₹{p.price} | Qty:{p.quantity}
 
@@ -500,9 +552,16 @@ if (!isLoggedIn) {
         </button>
         <hr />
 
+<input
+  placeholder="Search Customer"
+  value={customerSearch}
+  onChange={(e) =>
+    setCustomerSearch(e.target.value)
+  }
+/>
 <h3>Customers</h3>
 
-{customers.map((c) => (
+{customers.filter((c) => c.full_name.toLowerCase().includes(customerSearch.toLowerCase())).map((c) => (
   <div key={c.id} className="product-item">
     ID:{c.id} | {c.full_name} | {c.email}
 

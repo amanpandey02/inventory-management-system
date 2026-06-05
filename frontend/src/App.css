@@ -142,3 +142,31 @@ h3 {
     font-size: 28px;
   }
 }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.header button {
+  background: #dc2626;
+}
+
+.header button:hover {
+  background: #b91c1c;
+}
+.product-item {
+  transition: 0.3s;
+}
+
+.product-item:hover {
+  transform: translateY(-3px);
+}
+
+input[placeholder="Search Product"],
+input[placeholder="Search Customer"] {
+  background: #f8fafc;
+  border: 2px solid #2563eb;
+}
