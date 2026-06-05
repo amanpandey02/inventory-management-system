@@ -152,7 +152,8 @@ npm run dev
 
 ### Dashboard
 
-* GET /dashboard
+<img width="1843" height="866" alt="image" src="https://github.com/user-attachments/assets/bf73655c-5f8d-4d5a-8556-8bd4a7f6c67f" />
+
 
 ## Future Enhancements
 
