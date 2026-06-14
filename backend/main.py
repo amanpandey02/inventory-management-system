@@ -223,6 +223,32 @@ def delete_product(
 
     return {"message": "Product deleted"}
 
+@app.put("/products/{product_id}")
+def update_product(
+    product_id: int,
+    product: Product,
+    db: Session = Depends(get_db)
+):
+    db_product = db.query(ProductModel).filter(
+        ProductModel.id == product_id
+    ).first()
+
+    if not db_product:
+        raise HTTPException(
+            status_code=404,
+            detail="Product not found"
+        )
+
+    db_product.name = product.name
+    db_product.sku = product.sku
+    db_product.price = product.price
+    db_product.quantity = product.quantity
+
+    db.commit()
+    db.refresh(db_product)
+
+    return db_product
+
 @app.post("/customers")
 def create_customer(
     customer: Customer,
