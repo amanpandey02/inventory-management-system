@@ -8,6 +8,7 @@ from database import engine, SessionLocal, get_db
 from jose import jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
+from groq import Groq
 
 from models import (
     Base,
@@ -18,6 +19,12 @@ from models import (
 )
 
 app = FastAPI()
+
+import os
+client = Groq(
+    api_key=os.getenv("GROQ_API_KEY")
+)
+
 SECRET_KEY = "inventory-secret-key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
@@ -61,6 +68,9 @@ class UserRegister(BaseModel):
 class UserLogin(BaseModel):
     username: str
     password: str   
+    
+class ChatRequest(BaseModel):
+    message: str
 
 def hash_password(password):
     return pwd_context.hash(password)
@@ -436,3 +446,42 @@ def dashboard(
         "total_orders": total_orders,
         "low_stock_products": low_stock_products
     }
+    
+@app.post("/chat")
+def chat(data: ChatRequest, db: Session = Depends(get_db)):
+    msg = data.message.lower()
+
+    if "total products" in msg:
+        return {"reply": f"Total Products: {db.query(ProductModel).count()}"}
+
+    if "total customers" in msg:
+        return {"reply": f"Total Customers: {db.query(CustomerModel).count()}"}
+
+    if "total orders" in msg:
+        return {"reply": f"Total Orders: {db.query(OrderModel).count()}"}
+
+    if "low stock" in msg:
+        products = db.query(ProductModel).filter(
+            ProductModel.quantity < 5
+        ).all()
+
+        return {
+            "reply": ", ".join(
+                [f"{p.name} ({p.quantity})" for p in products]
+            ) or "No low stock products"
+        }
+
+    try:
+        res = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "Reply in 3-4 lines only."},
+                {"role": "user", "content": data.message}
+            ],
+            model="llama-3.3-70b-versatile",
+            max_tokens=120,
+        )
+
+        return {"reply": res.choices[0].message.content}
+
+    except Exception as e:
+        return {"reply": str(e)}
