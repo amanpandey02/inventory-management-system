@@ -19,7 +19,6 @@ from models import (
 )
 
 app = FastAPI()
-
 import os
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")

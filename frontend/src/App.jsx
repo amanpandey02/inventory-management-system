@@ -64,7 +64,7 @@ const sendMessage = async () => {
   setLoading(true);
 
   const res = await fetch(
-   "http://127.0.0.1:8000/chat",
+     "https://inventory-management-system-45u0.onrender.com/chat",
     {
       method: "POST",
       headers: {
@@ -77,7 +77,7 @@ const sendMessage = async () => {
   );
 
   const data = await res.json();
-
+console.log("CHAT RESPONSE:", data);
   setReply(data.reply);
   setLoading(false);
 };
