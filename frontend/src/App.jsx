@@ -295,6 +295,10 @@ const updateProduct = async () => {
   );
 
   setEditingId(null);
+  setProductName("");
+  setSku("");
+  setPrice("");
+  setQuantity("");
   loadProducts();
   loadDashboard();
 };
